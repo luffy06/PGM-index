@@ -69,6 +69,7 @@ class DynamicPGMIndex {
                         uint8_t target,
                         size_t size_hint,
                         typename Level::iterator insertion_point) {
+        num_merges_ ++;
         Level tmp_a(size_hint + level(target).size());
         Level tmp_b(size_hint + level(target).size());
 
@@ -112,6 +113,7 @@ class DynamicPGMIndex {
     }
 
     void insert(const Item &new_item) {
+        num_inserts_ ++; 
         auto insertion_point = lower_bound_bl(level(min_level).begin(), level(min_level).end(), new_item);
         if (insertion_point != level(min_level).end() && *insertion_point == new_item) {
             *insertion_point = new_item;
@@ -146,6 +148,8 @@ class DynamicPGMIndex {
 
 public:
 
+    int num_merges_ = 0;
+    int num_inserts_ = 0;
     using key_type = K;
     using mapped_type = V;
     using value_type = Item;
@@ -414,6 +418,15 @@ public:
         for (auto &p: pgms)
             bytes += p.size_in_bytes();
         return bytes;
+    }
+
+    void print_stats() {
+        std::cout << levels.size() << std::endl;
+        int max_height = 0;
+        for (int i = 0; i < pgms.size(); ++ i) {
+            max_height = std::max(max_height, int(pgms[i].height()));
+        }
+        std::cout << "Max Height\t" << max_height << std::endl;
     }
 
 private:
